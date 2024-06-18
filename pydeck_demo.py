@@ -34,9 +34,6 @@ geo_data = geo_data.to_crs(epsg=4326)
 # Streamlit app layout
 st.title("GeoJSON Data Analytics Pydeck")
 
-st.write("### Data Overview")
-st.write(geo_data.head())
-
 # Pydeck visualization
 layer = pdk.Layer(
     'GeoJsonLayer',
