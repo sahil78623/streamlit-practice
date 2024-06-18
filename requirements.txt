@@ -1,0 +1,10 @@
+streamlit 
+pandas 
+geopandas 
+pydeck 
+fiona 
+shapely
+plotly
+tenacity==8.3.0 #latest tenacity 8.4 has bug so downgrading
+asyncio
+boto3
