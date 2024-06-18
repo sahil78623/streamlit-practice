@@ -4,16 +4,12 @@ import pydeck as pdk
 from shapely.geometry import Point
 
 # Function to load GeoJSON data with new caching command
-# @st.cache_data
-def load_data(file_path, state_name):
-    
-    data = gpd.read_file(file_path)
-    data = data[data['STATENAME'] == state_name]
-    return data
-    # return gpd.read_file(file_path)
+@st.cache_data
+def load_data(file_path):
+    return gpd.read_file(file_path)
 
-# Load the data
-geo_data = load_data('processed_data.geojson', 'NORTH CAROLINA')
+# Load the entire GeoJSON data
+geo_data = load_data('processed_data.geojson')
 
 # Choose the property to base the color shading on
 property_name = 'MEMBER'
@@ -60,10 +56,27 @@ geo_data = geo_data.to_crs(epsg=4326)
 # Streamlit app layout
 st.title("GeoJSON Data Analytics Pydeck")
 
+# Multiselect for tooltip fields
+available_columns = geo_data.columns.tolist()
+tooltip_fields = st.multiselect("Select fields for tooltip:", available_columns, default=['STATENAME', 'MEMBER'])
+
+# Construct the tooltip HTML dynamically
+tooltip_html = ""
+for field in tooltip_fields:
+    tooltip_html += f"<b>{field}:</b> {{{{{field}}}}}<br>"
+
+tooltip = {
+    "html": tooltip_html,
+    "style": {
+        "backgroundColor": "steelblue",
+        "color": "white"
+    }
+}
+
 # Pydeck visualization
 layer = pdk.Layer(
     'GeoJsonLayer',
-    geo_data.__geo_interface__,
+    geo_data._geo_interface_,
     pickable=True,
     stroked=True,
     filled=True,
@@ -83,13 +96,5 @@ view_state = pdk.ViewState(
     pitch=0,
     bearing=0
 )
-
-tooltip = {
-    "html": "<b>State:</b> {STATENAME}<br><b>Member:</b> {MEMBER}<br><b>Student to teacher ratio:</b>{STUTERATIO}",
-    "style": {
-        "backgroundColor": "steelblue",
-        "color": "white"
-    }
-}
 
 st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip=tooltip))
