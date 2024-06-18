@@ -5,11 +5,14 @@ from shapely.geometry import Point
 
 # Function to load GeoJSON data with new caching command
 @st.cache_data
-def load_data(file_path):
+def load_data(file_path, state_name):
+    data = gpd.read_file(file_path)
+    data = data[data['STATENAME'] == state_name]
+    return data
     return gpd.read_file(file_path)
 
 # Load the entire GeoJSON data
-geo_data = load_data('processed_data.geojson')
+geo_data = load_data('processed_data.geojson', "NORTH CAROLINA")
 
 # Choose the property to base the color shading on
 property_name = 'MEMBER'
